@@ -81,6 +81,9 @@ $string['getstats'] = 'Generate indicator stats';
 $string['courseengagement'] = 'Course engagement';
 $string['noanalyticsfoundcourse'] = 'No analytics were found for this course';
 
+$string['entityenrolment'] = 'Enrolment';
+$string['timestarted'] = 'timestart';
+
 $string['privacy:metadata:local_ace'] = 'Summary of user analytics data';
 $string['privacy:metadata:local_ace:userid'] = 'The Moodle userid';
 $string['privacy:metadata:local_ace:starttime'] = 'The start of the analysis period';
