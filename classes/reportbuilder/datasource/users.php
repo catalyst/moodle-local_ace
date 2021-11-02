@@ -20,7 +20,10 @@ namespace local_ace\reportbuilder\datasource;
 
 use core_reportbuilder\datasource;
 use local_ace\local\entities\userentity;
+use local_ace\local\entities\enrolmententity;
 use core_reportbuilder\local\helpers\database;
+use core_reportbuilder\local\entities\course;
+
 
 /**
  * Users datasource
@@ -46,20 +49,39 @@ class users extends datasource {
     protected function initialise(): void {
         global $CFG, $COURSE;
 
+        // User entity.
         $userentity = new userentity();
         $usertablealias = $userentity->get_table_alias('user');
         $usercoursealias = $userentity->get_table_alias('course');
-
         $this->set_main_table('user', $usertablealias);
+        $this->add_entity($userentity);
+
+        // Enrolment entity.
+        $enrolmententity = new enrolmententity();
+        $enrolmenttablealias = $enrolmententity->get_table_alias('enrol');
+
+        // Join Enrolments entity to Users entity.
+        $userenrolmentjoin = "INNER JOIN {user_enrolments} {$enrolmenttablealias}
+                              ON {$enrolmenttablealias}.userid = {$usertablealias}.id";
+
+        $this->add_entity($enrolmententity->add_join($userenrolmentjoin));
+
+        // Course entity.
+        $courseentity = new course();
+        $coursetablealias = $courseentity->get_table_alias('course');
+
+        // Join Enrolments entity to Users entity.
+        $courseenroljoin = "INNER JOIN {course} {$coursetablealias}
+                            ON {$enrolmenttablealias}.courseid = {$coursetablealias}.id";
+
+        $this->add_entity($courseentity->add_join($courseenroljoin));
 
         $userparamguest = database::generate_param_name();
-        $this->add_base_condition_sql("{$usertablealias}.id != :{$userparamguest} AND {$usertablealias}.deleted = 0
-        AND {$usercoursealias}.id = $COURSE->id"
-            , [$userparamguest => $CFG->siteguest,
-            ]);
 
-        // Add all columns from entities to be available in custom reports.
-        $this->add_entity($userentity);
+        $this->add_base_condition_sql("{$usertablealias}.id != :{$userparamguest}
+                                      AND {$usertablealias}.deleted = 0
+                                      AND {$usercoursealias}.id = $COURSE->id", 
+                                      [$userparamguest => $CFG->siteguest]);
 
         $userentityname = $userentity->get_entity_name();
         $this->add_columns_from_entity($userentityname);

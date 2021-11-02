@@ -45,7 +45,7 @@ use core_reportbuilder\local\report\base as base_report;
  * @copyright  2021 University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrolment extends user {
+class enrolmententity extends base {
 
     /**
      * Database tables that this entity uses and their default aliases
@@ -59,7 +59,6 @@ class enrolment extends user {
                 'user_enrolments' => 'ue',
                 'role' => 'r',
                 'user_lastaccess' => 'ul',
-                'course' => 'c',
                ];
     }
 
@@ -69,7 +68,7 @@ class enrolment extends user {
      * @return lang_string
      */
     protected function get_default_entity_title(): lang_string {
-        return new lang_string('entityenrolment', 'core_reportbuilder');
+        return new lang_string('entityenrolment', 'local_ace');
     }
 
     /**
@@ -85,17 +84,17 @@ class enrolment extends user {
             $this->add_column($column);
         }
 
-        $filters = $this->get_all_filters();
+        // $filters = $this->get_all_filters();
 
-        foreach ($filters as $filter) {
-            $this->add_filter($filter);
-        }
+        // foreach ($filters as $filter) {
+        //     $this->add_filter($filter);
+        // }
 
         // TODO: differentiate between filters and conditions (specifically the 'date' type: MDL-72662).
-        $conditions = $this->get_all_filters();
-        foreach ($conditions as $condition) {
-            $this->add_condition($condition);
-        }
+        // $conditions = $this->get_all_filters();
+        // foreach ($conditions as $condition) {
+        //     $this->add_condition($condition);
+        // }
 
         return $this;
     }
@@ -116,24 +115,18 @@ class enrolment extends user {
      */
     protected function get_all_columns(): array {
 
-        $usertablealias = $this->get_table_alias('user');
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
         $enrolalias = $this->get_table_alias('enrol');
         $rolealias = $this->get_table_alias('role');
         $userlastaccessalias = $this->get_table_alias('user_lastaccess');
-        $coursealias = $this->get_table_alias('course');
 
         $join = "
-                INNER JOIN {user_enrolments} {$userenrolmentsalias}
-                ON {$userenrolmentsalias}.userid = {$usertablealias}.id
                 INNER JOIN {enrol} {$enrolalias}
                 ON {$enrolalias}.id = {$userenrolmentsalias}.enrolid
                 JOIN {role} {$rolealias}
                 ON {$rolealias}.id = {$enrolalias}.roleid
                 JOIN {user_lastaccess} {$userlastaccessalias}
-                ON {$userlastaccessalias}.userid = {$usertablealias}.id
-                INNER JOIN {course} {$coursealias}
-                ON {$enrolalias}.courseid = {$coursealias}.id
+                ON {$userlastaccessalias}.userid = u.id
         ";
 
         // Time enrolment started (user_enrolments.timestart)
@@ -239,17 +232,15 @@ class enrolment extends user {
      * @return filter[]
      */
     protected function get_all_filters(): array {
+
         $filters = [];
 
-        $usertablealias = $this->get_table_alias('user');
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
         $enrolalias = $this->get_table_alias('enrol');
         $rolealias = $this->get_table_alias('role');
         $userlastaccessalias = $this->get_table_alias('user_lastaccess');
 
         $join = "
-                INNER JOIN {user_enrolments} {$userenrolmentsalias}
-                ON {$userenrolmentsalias}.userid = {$usertablealias}.id
                 INNER JOIN {enrol} {$enrolalias}
                 ON {$enrolalias}.id = {$userenrolmentsalias}.enrolid
                 JOIN {role} {$rolealias}
@@ -267,7 +258,7 @@ class enrolment extends user {
             "{$userenrolmentsalias}.timestart"
         ))
             ->add_join($join);
-        }
+
 
         // Time enrolment ended (user_enrolments.timeend)
         $filters[] = (new filter(
@@ -278,7 +269,7 @@ class enrolment extends user {
             "{$userenrolmentsalias}.timeend"
         ))
             ->add_join($join);
-        }
+
 
         // Time created (user_enrolments.timecreated)
         $filters[] = (new filter(
@@ -289,7 +280,7 @@ class enrolment extends user {
             "{$userenrolmentsalias}.timecreated"
         ))
             ->add_join($join);
-        }
+
 
         // Enrol plugin used (mdl_enrol.enrol)
         $filters[] = (new filter(
@@ -300,7 +291,7 @@ class enrolment extends user {
             "{$enrolalias}.enrol"
         ))
             ->add_join($join);
-        }
+
         // Role given to user (mdl_enrol.roleid - allowing for role shortname.
         $filters[] = (new filter(
             text::class,
@@ -310,7 +301,7 @@ class enrolment extends user {
             "{$rolalias}.shortname"
         ))
             ->add_join($join);
-        }
+
 
         // User last access (join with mdl_user_lastaccess table)
         $filters[] = (new filter(
@@ -321,7 +312,7 @@ class enrolment extends user {
             "{$userlastaccessalias}.timeaccess"
         ))
             ->add_join($join);
-        }
+
 
         return $filters;
     }
