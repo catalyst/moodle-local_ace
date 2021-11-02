@@ -81,8 +81,14 @@ $string['getstats'] = 'Generate indicator stats';
 $string['courseengagement'] = 'Course engagement';
 $string['noanalyticsfoundcourse'] = 'No analytics were found for this course';
 
-$string['entityenrolment'] = 'Enrolment';
-$string['timestarted'] = 'timestart';
+$string['entityenrolment'] = 'Enrolment'; 
+$string['timestarted'] = 'Time start';
+$string['timeend'] = 'Time end';
+$string['timecreated'] = 'Time created';
+$string['enrol'] = 'Enrol';
+$string['role'] = 'Role';
+$string['useraccess'] = 'User last accessed';
+
 
 $string['privacy:metadata:local_ace'] = 'Summary of user analytics data';
 $string['privacy:metadata:local_ace:userid'] = 'The Moodle userid';

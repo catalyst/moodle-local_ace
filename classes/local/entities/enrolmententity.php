@@ -84,13 +84,14 @@ class enrolment extends user {
             $this->add_column($column);
         }
 
-        $filters = array_merge($this->get_all_filters(), $userprofilefields->get_filters());
+        $filters = $this->get_all_filters();
+        
         foreach ($filters as $filter) {
             $this->add_filter($filter);
         }
 
         // TODO: differentiate between filters and conditions (specifically the 'date' type: MDL-72662).
-        $conditions = array_merge($this->get_all_filters(), $userprofilefields->get_filters());
+        $conditions = $this->get_all_filters();
         foreach ($conditions as $condition) {
             $this->add_condition($condition);
         }
@@ -105,7 +106,7 @@ class enrolment extends user {
      * Time enrolment ended (user_enrolments.timeend)
      * Time created (user_enrolments.timeend),
      * Enrol plugin used (mdl_enrol.enrol)
-     * Role given to user (mdl_enrol.roleid - allowing for role shortname or longname columns by joining with mdl_role)
+     * Role given to user (mdl_enrol.roleid - allowing for role shortname.
      * User last access (join with mdl_user_lastaccess table)
      *
      * These are all the columns available to use in any report that uses this entity.
@@ -131,334 +132,193 @@ class enrolment extends user {
                 ON {$userlastaccessalias}.userid = {$usertablealias}.id
         ";
 
-        // Fullname column.
+        // Time enrolment started (user_enrolments.timestart)
         $columns[] = (new column(
             'timestart',
             new lang_string('timestarted', 'local_ace'),
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
-            ->add_fields($fullnameselect)
+            ->add_fields("$userenrolmentsalias.timestart")
             ->set_type(column::TYPE_TEXT)
-            ->set_is_sortable($this->is_sortable('fullname'))
-            ->add_callback(static function(?string $value, stdClass $row) use ($viewfullnames): string {
+            ->set_is_sortable(true)
+            ->add_callback(static function(?string $value): string {
                 if ($value === null) {
                     return '';
                 }
 
-                return fullname($row, $viewfullnames);
+                return userdate($value);
             });
 
-        // Last accessed to course column.
+        // Time enrolment ended (user_enrolments.timeend)
         $columns[] = (new column(
-            'lastaccessedtocourse',
-            new lang_string('lastaccessedtocourse', 'local_ace'),
+            'timeend',
+            new lang_string('timeend', 'local_ace'),
             $this->get_entity_name()
         ))
             ->add_join($join)
             ->set_type(column::TYPE_TEXT)
             ->set_is_sortable(true)
-            ->add_field("$logstorealiassub1.maxtimecreated")
+            ->add_fields("$userenrolmentsalias.timeend")
             ->add_callback(static function ($value): string {
+                if ($value === null) {
+                    return '';
+                }
                 return userdate($value);
             });
 
-        // Last access in 7 days column.
+        // Time created (user_enrolments.timecreated),
         $columns[] = (new column(
-            'log7',
-            new lang_string('last7', 'local_ace'),
+            'timecreated',
+            new lang_string('timecreated', 'local_ace'),
             $this->get_entity_name()
         ))
             ->add_join($join)
             ->set_is_sortable(true)
-            ->add_field("$logstorealiassub1.last7")
+            ->add_fields("$userenrolmentsalias.timecreated")
             ->add_callback(static function ($value): string {
-                if (!$value) {
-                    return '0';
+                if ($value === null) {
+                    return '';
                 }
-                return $value;
+                return userdate($value);
             });
 
-        // Last access in 30 days column.
+        // Enrol plugin used (mdl_enrol.enrol)
         $columns[] = (new column(
-            'log30',
-            new lang_string('last30', 'local_ace'),
+            'enrol',
+            new lang_string('enrol', 'local_ace'),
             $this->get_entity_name()
         ))
             ->add_join($join)
             ->set_is_sortable(true)
-            ->add_fields("$logstorealiassub2.last30")
-            ->add_callback(static function ($value): string {
-                if (!$value) {
-                    return '0';
-                }
-                return $value;
-            });
+            ->add_fields("$enrolalias.enrol");
 
-        // Formatted fullname columns (with link, picture or both).
-        $fullnamefields = [
-            'fullnamewithlink' => new lang_string('userfullnamewithlink', 'core_reportbuilder'),
-            'fullnamewithpicture' => new lang_string('userfullnamewithpicture', 'core_reportbuilder'),
-            'fullnamewithpicturelink' => new lang_string('userfullnamewithpicturelink', 'core_reportbuilder'),
-        ];
-        foreach ($fullnamefields as $fullnamefield => $fullnamelang) {
-            $column = (new column(
-                $fullnamefield,
-                $fullnamelang,
-                $this->get_entity_name()
-            ))
-                ->add_joins($this->get_joins())
-                ->add_fields($fullnameselect)
-                ->add_field("{$usertablealias}.id")
-                ->set_type(column::TYPE_TEXT)
-                ->set_is_sortable($this->is_sortable($fullnamefield))
-                ->add_callback(static function(?string $value, stdClass $row) use ($fullnamefield, $viewfullnames): string {
-                    global $OUTPUT;
 
-                    if ($value === null) {
-                        return '';
-                    }
-
-                    if ($fullnamefield === 'fullnamewithlink') {
-                        return html_writer::link(new moodle_url('/user/profile.php', ['id' => $row->id]),
-                            fullname($row, $viewfullnames));
-                    }
-                    if ($fullnamefield === 'fullnamewithpicture') {
-                        return $OUTPUT->user_picture($row, ['link' => false, 'alttext' => false]) .
-                            fullname($row, $viewfullnames);
-                    }
-                    if ($fullnamefield === 'fullnamewithpicturelink') {
-                        return html_writer::link(new moodle_url('/user/profile.php', ['id' => $row->id]),
-                            $OUTPUT->user_picture($row, ['link' => false, 'alttext' => false]) .
-                            fullname($row, $viewfullnames));
-                    }
-
-                    return $value;
-                });
-
-            // Picture fields need some more data.
-            if (strpos($fullnamefield, 'picture') !== false) {
-                $column->add_fields($userpictureselect);
-            }
-
-            $columns[] = $column;
-
-        }
-
-        // Picture column.
+        // Role given to user (mdl_enrol.roleid - allowing for role shortname.
         $columns[] = (new column(
-            'picture',
-            new lang_string('userpicture', 'core_reportbuilder'),
+            'role',
+            new lang_string('role', 'local_ace'),
             $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->add_fields($userpictureselect)
-            ->set_type(column::TYPE_INTEGER)
-            ->set_is_sortable($this->is_sortable('picture'))
-            ->add_callback(static function (int $value, stdClass $row): string {
-                global $OUTPUT;
+            ->add_join($join)
+            ->set_is_sortable(true)
+            ->add_fields("$rolealias.shortname");
 
-                return !empty($row->id) ? $OUTPUT->user_picture($row, ['link' => false, 'alttext' => false]) : '';
-            });
-
-        // Add all other user fields.
-        $userfields = $this->get_user_fields();
-        foreach ($userfields as $userfield => $userfieldlang) {
-            $columntype = $this->get_user_field_type($userfield);
-
-            $column = (new column(
-                $userfield,
-                $userfieldlang,
-                $this->get_entity_name()
-            ))
-                ->add_joins($this->get_joins())
-                ->add_field("{$usertablealias}.{$userfield}")
-                ->set_type($columntype)
-                ->set_is_sortable($this->is_sortable($userfield))
-                ->add_callback([$this, 'format'], $userfield);
-
-            // Some columns also have specific format callbacks.
-            if ($userfield === 'country') {
-                $column->add_callback(static function(string $country): string {
-                    $countries = get_string_manager()->get_list_of_countries(true);
-                    return $countries[$country] ?? '';
-                });
-            }
-
-            $columns[] = $column;
-        }
-
+        $columns[] = (new column(
+            'lastaccessed',
+            new lang_string('lastaccessed', 'local_ace'),
+            $this->get_entity_name()
+        ))
+            ->add_join($join)
+            ->set_is_sortable(true)
+            ->add_fields("$userlastaccessalias.timeaccess")
+            ->add_callback(static function ($value): string {
+                if ($value === null) {
+                    return '';
+                }
+                return userdate($value);
+            });        
+    
         return $columns;
     }
 
     /**
-     * Check if this field is sortable
-     *
-     * @param string $fieldname
-     * @return bool
-     */
-    protected function is_sortable(string $fieldname): bool {
-        // Some columns can't be sorted, like longtext or images.
-        $nonsortable = [
-            'picture',
-        ];
-
-        return !in_array($fieldname, $nonsortable);
-    }
-
-    /**
-     * Formats the user field for display.
-     *
-     * @param mixed $value Current field value.
-     * @param stdClass $row Complete row.
-     * @param string $fieldname Name of the field to format.
-     * @return string
-     */
-    public function format($value, stdClass $row, string $fieldname): string {
-        if ($this->get_user_field_type($fieldname) === column::TYPE_BOOLEAN) {
-            return format::boolean_as_text($value);
-        }
-
-        if ($this->get_user_field_type($fieldname) === column::TYPE_TIMESTAMP) {
-            return format::userdate($value, $row);
-        }
-
-        return s($value);
-    }
-
-    /**
-     * Returns a SQL statement to select all user fields necessary for fullname() function
-     *
-     * @param string $usertablealias
-     * @return string
-     */
-    public static function get_name_fields_select(string $usertablealias = 'u'): string {
-        $userfields = array_map(static function(string $userfield) use ($usertablealias): string {
-            if (!empty($usertablealias)) {
-                $userfield = "{$usertablealias}.{$userfield}";
-            }
-
-            return $userfield;
-        }, fields::get_name_fields(true));
-
-        return implode(', ', $userfields);
-    }
-
-    /**
-     * User fields
-     *
-     * @return lang_string[]
-     */
-    protected function get_user_fields(): array {
-        return [
-            'firstname' => new lang_string('firstname'),
-            'lastname' => new lang_string('lastname'),
-            'email' => new lang_string('email'),
-            'city' => new lang_string('city'),
-            'country' => new lang_string('country'),
-            'firstnamephonetic' => new lang_string('firstnamephonetic'),
-            'lastnamephonetic' => new lang_string('lastnamephonetic'),
-            'middlename' => new lang_string('middlename'),
-            'alternatename' => new lang_string('alternatename'),
-            'idnumber' => new lang_string('idnumber'),
-            'institution' => new lang_string('institution'),
-            'department' => new lang_string('department'),
-            'phone1' => new lang_string('phone1'),
-            'phone2' => new lang_string('phone2'),
-            'address' => new lang_string('address'),
-            'lastaccess' => new lang_string('lastaccess'),
-            'suspended' => new lang_string('suspended'),
-            'confirmed' => new lang_string('confirmed', 'admin'),
-            'username' => new lang_string('username'),
-            'moodlenetprofile' => new lang_string('moodlenetprofile', 'user'),
-        ];
-    }
-
-    /**
-     * Return appropriate column type for given user field
-     *
-     * @param string $userfield
-     * @return int
-     */
-    protected function get_user_field_type(string $userfield): int {
-        switch ($userfield) {
-            case 'confirmed':
-            case 'suspended':
-                $fieldtype = column::TYPE_BOOLEAN;
-                break;
-            case 'lastaccess':
-                $fieldtype = column::TYPE_TIMESTAMP;
-                break;
-            default:
-                $fieldtype = column::TYPE_TEXT;
-                break;
-        }
-
-        return $fieldtype;
-    }
-
-    /**
      * Return list of all available filters
+     * 
+     * Time enrolment started (user_enrolments.timestart)
+     * Time enrolment ended (user_enrolments.timeend)
+     * Time created (user_enrolments.timecreated),
+     * Enrol plugin used (mdl_enrol.enrol)
+     * Role given to user (mdl_enrol.roleid - allowing for role shortname.
+     * User last access (join with mdl_user_lastaccess table)
      *
      * @return filter[]
      */
     protected function get_all_filters(): array {
         $filters = [];
-        $tablealias = $this->get_table_alias('user');
 
-        // Fullname filter.
-        $canviewfullnames = has_capability('moodle/site:viewfullnames', context_system::instance());
-        [$fullnamesql, $fullnameparams] = fields::get_sql_fullname($tablealias, $canviewfullnames);
+        $usertablealias = $this->get_table_alias('user');
+        $userenrolmentsalias = $this->get_table_alias('user_enrolments');
+        $enrolalias = $this->get_table_alias('enrol');
+        $rolealias = $this->get_table_alias('role');
+        $userlastaccessalias = $this->get_table_alias('user_lastaccess');
+
+        $join = "
+                INNER JOIN {user_enrolments} {$userenrolmentsalias}
+                ON {$userenrolmentsalias}.userid = {$usertablealias}.id
+                INNER JOIN {enrol} {$enrolalias}
+                ON {$enrolalias}.id = {$userenrolmentsalias}.enrolid
+                JOIN {role} {$rolealias}
+                ON {$rolealias}.id = {$enrolalias}.roleid
+                JOIN {user_lastaccess} {$userlastaccessalias}
+                ON {$userlastaccessalias}.userid = {$usertablealias}.id
+        ";
+
+        // Time enrolment started (user_enrolments.timestart)
         $filters[] = (new filter(
             text::class,
-            'fullname',
-            new lang_string('fullname'),
+            'timestart',
+            new lang_string('timestarted', 'local_ace'),
             $this->get_entity_name(),
-            $fullnamesql,
-            $fullnameparams
+            "{$userenrolmentsalias}.timestart"
         ))
-            ->add_joins($this->get_joins());
+            ->add_join($join);
+        }
 
-        // User fields filters.
-        $fields = $this->get_user_fields();
-        foreach ($fields as $field => $name) {
-            $optionscallback = [static::class, 'get_options_for_' . $field];
-            if (is_callable($optionscallback)) {
-                $classname = select::class;
-            } else if ($this->get_user_field_type($field) === column::TYPE_BOOLEAN) {
-                $classname = boolean_select::class;
-            } else if ($this->get_user_field_type($field) === column::TYPE_TIMESTAMP) {
-                $classname = date::class;
-            } else {
-                $classname = text::class;
-            }
+        // Time enrolment ended (user_enrolments.timeend)
+        $filters[] = (new filter(
+            text::class,
+            'timeend',
+            new lang_string('timeended', 'local_ace'),
+            $this->get_entity_name(),
+            "{$userenrolmentsalias}.timeend"
+        ))
+            ->add_join($join);
+        }
 
-            $filter = (new filter(
-                $classname,
-                $field,
-                $name,
-                $this->get_entity_name(),
-                $tablealias . '.' . $field
-            ))
-                ->add_joins($this->get_joins());
+        // Time created (user_enrolments.timecreated)
+        $filters[] = (new filter(
+            text::class,
+            'timecreated',
+            new lang_string('timecreated', 'local_ace'),
+            $this->get_entity_name(),
+            "{$userenrolmentsalias}.timecreated"
+        ))
+            ->add_join($join);
+        }
 
-            // Populate filter options by callback, if available.
-            if (is_callable($optionscallback)) {
-                $filter->set_options_callback($optionscallback);
-            }
+        // Enrol plugin used (mdl_enrol.enrol)
+        $filters[] = (new filter(
+            text::class,
+            'enrol',
+            new lang_string('enrol', 'local_ace'),
+            $this->get_entity_name(),
+            "{$enrolalias}.enrol"
+        ))
+            ->add_join($join);
+        }
+        // Role given to user (mdl_enrol.roleid - allowing for role shortname.
+        $filters[] = (new filter(
+            text::class,
+            'role',
+            new lang_string('role', 'local_ace'),
+            $this->get_entity_name(),
+            "{$rolalias}.shortname"
+        ))
+            ->add_join($join);
+        }
 
-            $filters[] = $filter;
+        // User last access (join with mdl_user_lastaccess table)
+        $filters[] = (new filter(
+            text::class,
+            'lastaccess',
+            new lang_string('lastaccess', 'local_ace'),
+            $this->get_entity_name(),
+            "{$userlastaccessalias}.timeaccess"
+        ))
+            ->add_join($join);
         }
 
         return $filters;
-    }
-
-    /**
-     * List of options for the field country.
-     *
-     * @return string[]
-     */
-    public static function get_options_for_country(): array {
-        return array_map('shorten_text', get_string_manager()->get_list_of_countries());
     }
 }
