@@ -89,7 +89,6 @@ $string['enrol'] = 'Enrol';
 $string['role'] = 'Role';
 $string['useraccess'] = 'User last accessed';
 
-
 $string['privacy:metadata:local_ace'] = 'Summary of user analytics data';
 $string['privacy:metadata:local_ace:userid'] = 'The Moodle userid';
 $string['privacy:metadata:local_ace:starttime'] = 'The start of the analysis period';

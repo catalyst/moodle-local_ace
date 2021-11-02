@@ -59,6 +59,7 @@ class enrolment extends user {
                 'user_enrolments' => 'ue',
                 'role' => 'r',
                 'user_lastaccess' => 'ul',
+                'course' => 'c',
                ];
     }
 
@@ -85,7 +86,7 @@ class enrolment extends user {
         }
 
         $filters = $this->get_all_filters();
-        
+
         foreach ($filters as $filter) {
             $this->add_filter($filter);
         }
@@ -120,6 +121,7 @@ class enrolment extends user {
         $enrolalias = $this->get_table_alias('enrol');
         $rolealias = $this->get_table_alias('role');
         $userlastaccessalias = $this->get_table_alias('user_lastaccess');
+        $coursealias = $this->get_table_alias('course');
 
         $join = "
                 INNER JOIN {user_enrolments} {$userenrolmentsalias}
@@ -130,6 +132,8 @@ class enrolment extends user {
                 ON {$rolealias}.id = {$enrolalias}.roleid
                 JOIN {user_lastaccess} {$userlastaccessalias}
                 ON {$userlastaccessalias}.userid = {$usertablealias}.id
+                INNER JOIN {course} {$coursealias}
+                ON {$enrolalias}.courseid = {$coursealias}.id
         ";
 
         // Time enrolment started (user_enrolments.timestart)
