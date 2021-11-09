@@ -116,12 +116,14 @@ class enrolmententity extends base {
         $userlastaccessalias = $this->get_table_alias('user_lastaccess');
 
         $join = "
-                INNER JOIN {enrol} {$enrolalias}
-                ON {$enrolalias}.id = {$userenrolmentsalias}.enrolid
-                JOIN {role} {$rolealias}
-                ON {$rolealias}.id = {$enrolalias}.roleid
-                JOIN {user_lastaccess} {$userlastaccessalias}
-                ON {$userlastaccessalias}.userid = u.id
+            JOIN {user_enrolments} {$userenrolmentsalias}
+            ON {$userenrolmentsalias}.userid = {$usertablealias}.id
+            INNER JOIN {enrol} {$enrolalias}
+            ON {$enrolalias}.id = {$userenrolmentsalias}.enrolid
+            JOIN {role} {$rolealias}
+            ON {$rolealias}.id = {$enrolalias}.roleid
+            JOIN {user_lastaccess} {$userlastaccessalias}
+            ON {$userlastaccessalias}.userid = {$usertablealias}.id
         ";
 
         // Time enrolment started (user_enrolments.timestart).
@@ -130,7 +132,7 @@ class enrolmententity extends base {
             new lang_string('timestarted', 'local_ace'),
             $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
+            ->add_join($join)
             ->add_fields("$userenrolmentsalias.timestart")
             ->set_type(column::TYPE_TEXT)
             ->set_is_sortable(true)
