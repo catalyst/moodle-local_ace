@@ -85,8 +85,13 @@ class users extends datasource {
         $this->add_entity($userentity);
 
         $userentityname = $userentity->get_entity_name();
-        $this->add_columns_from_entity($userentityname);
-        $this->add_filters_from_entity($userentityname);
+
+        $this->add_columns_from_entity($userentity->get_entity_name());
+        $this->add_columns_from_entity($enrolmententity->get_entity_name());
+
+        $this->add_filters_from_entity($userentity->get_entity_name());
+        $this->add_filters_from_entity($enrolmententity->get_entity_name());
+
         $this->add_conditions_from_entity($userentityname);
 
         $emailselected = new lang_string('bulkactionbuttonvalue', 'local_ace');
@@ -96,6 +101,8 @@ class users extends datasource {
             'buttonvalue' => $emailselected,
             'buttonid' => 'emailallselected',
         ], true);
+
+        $this->is_downloadable(true);
     }
 
     /**
