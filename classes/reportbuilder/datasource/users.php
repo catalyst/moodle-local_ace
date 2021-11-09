@@ -101,6 +101,8 @@ class users extends datasource {
             'buttonvalue' => $emailselected,
             'buttonid' => 'emailallselected',
         ], true);
+
+        $this->is_downloadable(true);
     }
 
     /**
