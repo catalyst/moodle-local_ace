@@ -94,7 +94,7 @@ class enrolmententity extends base {
     }
 
     /**
-     * Returns list of all available columns
+     * Returns list of all available columns.
      *
      * Time enrolment started (user_enrolments.timestart)
      * Time enrolment ended (user_enrolments.timeend)

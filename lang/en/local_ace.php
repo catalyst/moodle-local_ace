@@ -120,5 +120,13 @@ $string['enrol'] = 'Enrol';
 $string['role'] = 'Role';
 $string['useraccess'] = 'User last accessed';
 
+$string['entityenrolment'] = 'Enrolment';
+$string['timestarted'] = 'Time start';
+$string['timeend'] = 'Time end';
+$string['timecreated'] = 'Time created';
+$string['enrol'] = 'Enrol';
+$string['role'] = 'Role';
+$string['useraccess'] = 'User last accessed';
+
 
 
