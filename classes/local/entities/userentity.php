@@ -153,8 +153,10 @@ class userentity extends user {
 
         $lastaccessjoin = "JOIN {user_enrolments} {$userenrolmentlastaccessalias}
                            ON {$userenrolmentlastaccessalias}.userid = {$usertablealias}.id
-                           JOIN {enrol} {$enrollastaccessalias} ON {$enrollastaccessalias}.id = {$userenrolmentlastaccessalias}.enrolid
-                           JOIN {course} {$courselastaccessalias} ON {$enrollastaccessalias}.courseid = {$courselastaccessalias}.id
+                           JOIN {enrol} {$enrollastaccessalias}
+                           ON {$enrollastaccessalias}.id = {$userenrolmentlastaccessalias}.enrolid
+                           JOIN {course} {$courselastaccessalias}
+                           ON {$enrollastaccessalias}.courseid = {$courselastaccessalias}.id
                            LEFT JOIN {user_lastaccess} {$userlastaccessalias}
                            ON {$userlastaccessalias}.userid = {$usertablealias}.id
                            AND {$userlastaccessalias}.courseid = {$courselastaccessalias}.id";
