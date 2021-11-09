@@ -95,7 +95,7 @@ class enrolmententity extends base {
 
     /**
      * Returns list of all available columns
-     * 
+     *
      * Time enrolment started (user_enrolments.timestart)
      * Time enrolment ended (user_enrolments.timeend)
      * Time created (user_enrolments.timeend),
@@ -124,7 +124,7 @@ class enrolmententity extends base {
                 ON {$userlastaccessalias}.userid = u.id
         ";
 
-        // Time enrolment started (user_enrolments.timestart)
+        // Time enrolment started (user_enrolments.timestart).
         $columns[] = (new column(
             'timestart',
             new lang_string('timestarted', 'local_ace'),
@@ -142,7 +142,7 @@ class enrolmententity extends base {
                 return userdate($value);
             });
 
-        // Time enrolment ended (user_enrolments.timeend)
+        // Time enrolment ended (user_enrolments.timeend).
         $columns[] = (new column(
             'timeend',
             new lang_string('timeend', 'local_ace'),
@@ -159,7 +159,7 @@ class enrolmententity extends base {
                 return userdate($value);
             });
 
-        // Time created (user_enrolments.timecreated),
+        // Time created (user_enrolments.timecreated).
         $columns[] = (new column(
             'timecreated',
             new lang_string('timecreated', 'local_ace'),
@@ -175,7 +175,7 @@ class enrolmententity extends base {
                 return userdate($value);
             });
 
-        // Enrol plugin used (mdl_enrol.enrol)
+        // Enrol plugin used (mdl_enrol.enrol).
         $columns[] = (new column(
             'enrol',
             new lang_string('enrol', 'local_ace'),
@@ -184,7 +184,6 @@ class enrolmententity extends base {
             ->add_join($join)
             ->set_is_sortable(true)
             ->add_fields("$enrolalias.enrol");
-
 
         // Role given to user (mdl_enrol.roleid - allowing for role shortname.
         $columns[] = (new column(
@@ -209,14 +208,14 @@ class enrolmententity extends base {
                     return '';
                 }
                 return userdate($value);
-            });        
-    
+            });
+
         return $columns;
     }
 
     /**
      * Return list of all available filters
-     * 
+     *
      * Time enrolment started (user_enrolments.timestart)
      * Time enrolment ended (user_enrolments.timeend)
      * Time created (user_enrolments.timecreated),
@@ -245,7 +244,7 @@ class enrolmententity extends base {
                 ON {$userlastaccessalias}.userid = {$usertablealias}.id
         ";
 
-        // Time enrolment started (user_enrolments.timestart)
+        // Time enrolment started (user_enrolments.timestart).
         $filters[] = (new filter(
             text::class,
             'timestart',
@@ -255,8 +254,7 @@ class enrolmententity extends base {
         ))
             ->add_join($join);
 
-
-        // Time enrolment ended (user_enrolments.timeend)
+        // Time enrolment ended (user_enrolments.timeend).
         $filters[] = (new filter(
             text::class,
             'timeend',
@@ -266,8 +264,7 @@ class enrolmententity extends base {
         ))
             ->add_join($join);
 
-
-        // Time created (user_enrolments.timecreated)
+        // Time created (user_enrolments.timecreated).
         $filters[] = (new filter(
             text::class,
             'timecreated',
@@ -277,8 +274,7 @@ class enrolmententity extends base {
         ))
             ->add_join($join);
 
-
-        // Enrol plugin used (mdl_enrol.enrol)
+        // Enrol plugin used (mdl_enrol.enrol).
         $filters[] = (new filter(
             text::class,
             'enrol',
@@ -298,8 +294,7 @@ class enrolmententity extends base {
         ))
             ->add_join($join);
 
-
-        // User last access (join with mdl_user_lastaccess table)
+        // User last access (join with mdl_user_lastaccess table).
         $filters[] = (new filter(
             text::class,
             'lastaccess',
@@ -308,7 +303,6 @@ class enrolmententity extends base {
             "{$userlastaccessalias}.timeaccess"
         ))
             ->add_join($join);
-
 
         return $filters;
     }
