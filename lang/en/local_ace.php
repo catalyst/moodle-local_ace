@@ -107,3 +107,14 @@ $string['pagecontextcourse'] = 'Page course context';
 $string['myenrolledcourses'] = 'My enrolled courses';
 $string['allaccessible'] = 'All accessible to this user';
 $string['enrolledonly'] = 'Enrolled only';
+
+$string['entityenrolment'] = 'Enrolment';
+$string['timestarted'] = 'Time start';
+$string['timeend'] = 'Time end';
+$string['timecreated'] = 'Time created';
+$string['enrol'] = 'Enrol';
+$string['role'] = 'Role';
+$string['useraccess'] = 'User last accessed';
+
+
+
