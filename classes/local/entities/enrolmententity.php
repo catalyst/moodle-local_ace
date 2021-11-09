@@ -84,17 +84,11 @@ class enrolmententity extends base {
             $this->add_column($column);
         }
 
-        // $filters = $this->get_all_filters();
+        $filters = $this->get_all_filters();
 
-        // foreach ($filters as $filter) {
-        //     $this->add_filter($filter);
-        // }
-
-        // TODO: differentiate between filters and conditions (specifically the 'date' type: MDL-72662).
-        // $conditions = $this->get_all_filters();
-        // foreach ($conditions as $condition) {
-        //     $this->add_condition($condition);
-        // }
+        foreach ($filters as $filter) {
+            $this->add_filter($filter);
+        }
 
         return $this;
     }
@@ -115,6 +109,7 @@ class enrolmententity extends base {
      */
     protected function get_all_columns(): array {
 
+        $usertablealias = $this->get_table_alias('user');
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
         $enrolalias = $this->get_table_alias('enrol');
         $rolealias = $this->get_table_alias('role');
@@ -235,6 +230,7 @@ class enrolmententity extends base {
 
         $filters = [];
 
+        $usertablealias = $this->get_table_alias('user');
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
         $enrolalias = $this->get_table_alias('enrol');
         $rolealias = $this->get_table_alias('role');
@@ -264,7 +260,7 @@ class enrolmententity extends base {
         $filters[] = (new filter(
             text::class,
             'timeend',
-            new lang_string('timeended', 'local_ace'),
+            new lang_string('timeend', 'local_ace'),
             $this->get_entity_name(),
             "{$userenrolmentsalias}.timeend"
         ))
@@ -298,7 +294,7 @@ class enrolmententity extends base {
             'role',
             new lang_string('role', 'local_ace'),
             $this->get_entity_name(),
-            "{$rolalias}.shortname"
+            "{$enrolalias}.shortname"
         ))
             ->add_join($join);
 
@@ -307,7 +303,7 @@ class enrolmententity extends base {
         $filters[] = (new filter(
             text::class,
             'lastaccess',
-            new lang_string('lastaccess', 'local_ace'),
+            new lang_string('lastaccessed', 'local_ace'),
             $this->get_entity_name(),
             "{$userlastaccessalias}.timeaccess"
         ))
