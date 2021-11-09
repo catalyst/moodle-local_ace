@@ -20,6 +20,8 @@ namespace local_ace\reportbuilder\datasource;
 
 use core_reportbuilder\datasource;
 use local_ace\local\entities\userentity;
+use local_ace\local\entities\enrolmententity;
+use core_reportbuilder\local\entities\course;
 use core_reportbuilder\local\helpers\database;
 use lang_string;
 
@@ -45,12 +47,34 @@ class users extends datasource {
      * Initialise report
      */
     protected function initialise(): void {
-        global $CFG;
+        global $CFG, $COURSE;
 
+        // User entity.
         $userentity = new userentity();
         $usertablealias = $userentity->get_table_alias('user');
-
+        $usercoursealias = $userentity->get_table_alias('course');
         $this->set_main_table('user', $usertablealias);
+        $this->add_entity($userentity);
+
+        // Enrolment entity.
+        $enrolmententity = new enrolmententity();
+        $enrolmenttablealias = $enrolmententity->get_table_alias('enrol');
+
+        // Join Enrolments entity to Users entity.
+        $userenrolmentjoin = "INNER JOIN {user_enrolments} {$enrolmenttablealias}
+                              ON {$enrolmenttablealias}.userid = {$usertablealias}.id";
+
+        $this->add_entity($enrolmententity->add_join($userenrolmentjoin));
+
+        // Course entity.
+        $courseentity = new course();
+        $coursetablealias = $courseentity->get_table_alias('course');
+
+        // Join Enrolments entity to Users entity.
+        $courseenroljoin = "INNER JOIN {course} {$coursetablealias}
+                            ON {$enrolmenttablealias}.courseid = {$coursetablealias}.id";
+
+        $this->add_entity($courseentity->add_join($courseenroljoin));
 
         $userparamguest = database::generate_param_name();
         $this->add_base_condition_sql("{$usertablealias}.id != :{$userparamguest} AND {$usertablealias}.deleted = 0"

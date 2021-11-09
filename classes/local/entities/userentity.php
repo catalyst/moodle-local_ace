@@ -66,6 +66,9 @@ class userentity extends user {
             'assign_submission' => 'asub',
             'logstore_standard_log' => 'ls',
             'context' => 'ctx',
+            'user_enrolments_last_access' => 'uela',
+            'enrol_last_access' => 'ela',
+            'course_last_access' => 'cla',
         ];
     }
 
@@ -139,17 +142,21 @@ class userentity extends user {
         $logstorealiassub1 = 'logs_sub_select_1';
         $logstorealiassub2 = 'logs_sub_select_2';
 
+        $userenrolmentlastaccessalias = $this->get_table_alias('user_enrolments_last_access');
+        $enrollastaccessalias = $this->get_table_alias('enrol_last_access');
+        $courselastaccessalias = $this->get_table_alias('course_last_access');
+
         $fullnameselect = self::get_name_fields_select($usertablealias);
         $userpictureselect = fields::for_userpic()->get_sql($usertablealias, false, '', '', false)->selects;
         $viewfullnames = has_capability('moodle/site:viewfullnames', context_system::instance());
 
-        $lastaccessjoin = "JOIN {user_enrolments} {$userenrolmentsalias}
-                               ON {$userenrolmentsalias}.userid = {$usertablealias}.id
-                          JOIN {enrol} {$enrolalias} ON {$enrolalias}.id = {$userenrolmentsalias}.enrolid
-                          JOIN {course} {$coursealias} ON {$enrolalias}.courseid = {$coursealias}.id
-                          LEFT JOIN {user_lastaccess} {$userlastaccessalias}
+        $lastaccessjoin = "JOIN {user_enrolments} {$userenrolmentlastaccessalias}
+                           ON {$userenrolmentlastaccessalias}.userid = {$usertablealias}.id
+                           JOIN {enrol} {$enrollastaccessalias} ON {$enrollastaccessalias}.id = {$userenrolmentlastaccessalias}.enrolid
+                           JOIN {course} {$courselastaccessalias} ON {$enrollastaccessalias}.courseid = {$courselastaccessalias}.id
+                           LEFT JOIN {user_lastaccess} {$userlastaccessalias}
                            ON {$userlastaccessalias}.userid = {$usertablealias}.id
-                           AND {$userlastaccessalias}.courseid = {$coursealias}.id";
+                           AND {$userlastaccessalias}.courseid = {$courselastaccessalias}.id";
 
         $join = "
                 INNER JOIN {user_enrolments} {$userenrolmentsalias}
