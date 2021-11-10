@@ -57,7 +57,7 @@ $mform = new bulkaction_form();
 
 if ($mform->is_cancelled()) { // If cancelled, redirect back to report view.
 
-    redirect($SESSION->wantsurl, null, null, null);
+    redirect(new moodle_url($SESSION->wantsurl), null, null, null);
 
 } else if ($mform->get_data()) { // If submitted, send emails to all users selected.
 
@@ -81,9 +81,9 @@ if ($mform->is_cancelled()) { // If cancelled, redirect back to report view.
 
     // Notify and redirect admin user back to the report view.
     if ($bulkemail) {
-        redirect($SESSION->wantsurl, get_string("emailsent", "local_ace"), null, \core\output\notification::NOTIFY_SUCCESS);
+        redirect(new moodle_url($SESSION->wantsurl), get_string("emailsent", "local_ace"), null, \core\output\notification::NOTIFY_SUCCESS);
     } else {
-        redirect($SESSION->wantsurl, get_string("emailfailed", "local_ace"), null, \core\output\notification::NOTIFY_ERROR);
+        redirect(new moodle_url($SESSION->wantsurl), get_string("emailfailed", "local_ace"), null, \core\output\notification::NOTIFY_ERROR);
     }
 
     echo $OUTPUT->header();
