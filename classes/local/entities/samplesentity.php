@@ -32,6 +32,7 @@ use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
 use core_reportbuilder\local\entities\base;
+
 use lang_string;
 
 defined('MOODLE_INTERNAL') || die();
@@ -149,15 +150,16 @@ class samplesentity extends base {
             $this->get_entity_name()
         ))
             ->add_join($join)
-            ->set_type(column::TYPE_TEXT)
+            ->set_type(column::TYPE_INTEGER)
+            ->set_aggregation('sum')
             ->set_is_sortable(true)
-            ->add_fields("{$samplesalias}.value")
-            ->add_callback(static function ($value): string {
-                if (!$value) {
-                    return '0%';
-                }
-                return $value . '%';
-            });
+            ->add_fields("{$samplesalias}.value");
+            // ->add_callback(static function ($value): string {
+            //     if (!$value) {
+            //         return '0%';
+            //     }
+            //     return $value . '%';
+            // });
 
         return $columns;
     }
