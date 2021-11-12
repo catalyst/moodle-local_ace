@@ -62,7 +62,7 @@ class users extends datasource {
         $this->add_entity($userentity);
 
         $sampleentity = new samplesentity();
-        $sampletablealias = $sampleentity->get_table_alias('sample');
+        $sampletablealias = $sampleentity->get_table_alias('local_ace_samples');
 
         // Join Enrolments entity to Users entity.
         $userenrolmentjoin = "INNER JOIN {user} {$usertablealias}
