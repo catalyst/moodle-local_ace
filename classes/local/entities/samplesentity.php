@@ -127,14 +127,14 @@ class samplesentity extends base {
 
         // Time enrolment ended.
         $columns[] = (new column(
-            'timeend',
-            new lang_string('timeend', 'local_ace'),
+            'endtime',
+            new lang_string('endtime', 'local_ace'),
             $this->get_entity_name()
         ))
             ->add_join($join)
             ->set_type(column::TYPE_TEXT)
             ->set_is_sortable(true)
-            ->add_fields("{$samplesalias}.timeend")
+            ->add_fields("{$samplesalias}.endtime")
             ->add_callback(static function ($value): string {
                 if ($value === null) {
                     return '';

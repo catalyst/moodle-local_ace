@@ -112,5 +112,6 @@ $string['enrolledonly'] = 'Enrolled only';
 
 $string['sampleentitytitle'] = 'ACE samples';
 $string['studentengagement'] = 'Student engagement';
+
 $string['starttime'] = 'Start time';
-$string['timeend'] = 'End time';
+$string['endtime'] = 'End time';
