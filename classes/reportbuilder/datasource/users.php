@@ -20,6 +20,7 @@ namespace local_ace\reportbuilder\datasource;
 
 use core_reportbuilder\datasource;
 use local_ace\local\entities\userentity;
+use local_ace\local\entities\samplesentity;
 use core_reportbuilder\local\helpers\database;
 use lang_string;
 
@@ -60,10 +61,22 @@ class users extends datasource {
         // Add all columns from entities to be available in custom reports.
         $this->add_entity($userentity);
 
-        $userentityname = $userentity->get_entity_name();
-        $this->add_columns_from_entity($userentityname);
-        $this->add_filters_from_entity($userentityname);
-        $this->add_conditions_from_entity($userentityname);
+        $sampleentity = new samplesentity();
+        $sampletablealias = $sampleentity->get_table_alias('sample');
+
+        // Join Enrolments entity to Users entity.
+        $userenrolmentjoin = "INNER JOIN {user} {$usertablealias}
+                              ON {$sampletablealias}.userid = {$usertablealias}.id";
+
+        $this->add_entity($sampleentity->add_join($userenrolmentjoin));
+
+        $this->add_columns_from_entity($userentity->get_entity_name());
+        $this->add_columns_from_entity($sampleentity->get_entity_name());
+
+        $this->add_filters_from_entity($userentity->get_entity_name());
+        $this->add_filters_from_entity($sampleentity->get_entity_name());
+
+        $this->add_conditions_from_entity($userentity->get_entity_name());
 
         $emailselected = new lang_string('bulkactionbuttonvalue', 'local_ace');
 

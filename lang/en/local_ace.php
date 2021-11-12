@@ -89,6 +89,8 @@ $string['showallcourses'] = 'Show all courses';
 $string['showyourcourse'] = 'Show your course';
 $string['yourengagement'] = 'Your engagement';
 $string['coursefilter'] = 'Course filter';
+$string['showcumulative'] = 'Show cumulative';
+$string['showdailyaccess'] = 'Show daily access';
 
 $string['privacy:metadata:local_ace'] = 'Summary of user analytics data';
 $string['privacy:metadata:local_ace:userid'] = 'The Moodle userid';
@@ -107,3 +109,8 @@ $string['pagecontextcourse'] = 'Page course context';
 $string['myenrolledcourses'] = 'My enrolled courses';
 $string['allaccessible'] = 'All accessible to this user';
 $string['enrolledonly'] = 'Enrolled only';
+
+$string['sampleentitytitle'] = 'ACE samples';
+$string['studentengagement'] = 'Student engagement';
+$string['starttime'] = 'Start time';
+$string['timeend'] = 'End time';
