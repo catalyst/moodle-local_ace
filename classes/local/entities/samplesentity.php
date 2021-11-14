@@ -59,7 +59,7 @@ class samplesentity extends base {
     protected function get_default_table_aliases(): array {
         return [
                 'user' => 'u',
-                'local_ace_samples' => 'las', 
+                'local_ace_samples' => 'las',
                ];
     }
 
