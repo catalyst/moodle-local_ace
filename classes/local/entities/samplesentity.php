@@ -151,15 +151,14 @@ class samplesentity extends base {
         ))
             ->add_join($join)
             ->set_type(column::TYPE_INTEGER)
-            ->set_aggregation('sum')
             ->set_is_sortable(true)
-            ->add_fields("{$samplesalias}.value");
-            // ->add_callback(static function ($value): string {
-            //     if (!$value) {
-            //         return '0%';
-            //     }
-            //     return $value . '%';
-            // });
+            ->add_fields("{$samplesalias}.value")
+            ->add_callback(static function ($value): string {
+                if (!$value) {
+                    return '0%';
+                }
+                return $value . '%';
+            });
 
         return $columns;
     }
