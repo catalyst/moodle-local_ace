@@ -19,8 +19,8 @@ declare(strict_types=1);
 namespace local_ace\reportbuilder\datasource;
 
 use core_reportbuilder\datasource;
-use core_reportbuilder\local\entities\user;
 use core_reportbuilder\local\entities\course;
+use local_ace\local\entities\userentity as user;
 use local_ace\local\entities\acesamples;
 use local_ace\local\entities\userenrolment;
 use core_reportbuilder\local\helpers\database;
@@ -89,6 +89,7 @@ class users extends datasource {
         $acesamplejoin = "LEFT JOIN {local_ace_samples} {$acesamplesalias}
                              ON {$acesamplesalias}.userid = {$usertablealias}.id
                              AND {$contexttablealias}.id = {$acesamplesalias}.contextid";
+
         $this->add_entity($acesamplesentity->add_join($acesamplejoin));
 
         $this->add_columns_from_entity($userentity->get_entity_name());
