@@ -80,10 +80,10 @@ class userentity extends base {
     }
 
      /**
-     * Initialise the entity, add all user fields and all 'visible' user profile fields
-     *
-     * @return base
-     */
+      * Initialise the entity, add all user fields and all 'visible' user profile fields
+      *
+      * @return base
+      */
     public function initialise(): base {
 
         $columns = $this->get_all_columns();
@@ -245,7 +245,6 @@ class userentity extends base {
      */
     protected function get_all_filters(): array {
         $filters = [];
-
         $tablealias = $this->get_table_alias('user');
         $coursetablealias = $this->get_table_alias('course');
 <<<<<<< HEAD
@@ -368,7 +367,6 @@ class userentity extends base {
 
             $filters[] = $filter;
         }
-
 
         // End Time  filter.
         $filters[] = (new filter(
