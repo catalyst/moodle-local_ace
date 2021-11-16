@@ -56,17 +56,17 @@ class userentity extends base {
      */
     protected function get_default_table_aliases(): array {
         return [
-            'user' => 'u',
-            'enrol' => 'e',
-            'user_enrolments' => 'ue',
-            'user_lastaccess' => 'ula',
-            'course' => 'c',
-            'course_modules' => 'cm',
-            'modules' => 'm',
-            'assign' => 'a',
-            'assign_submission' => 'asub',
-            'logstore_standard_log' => 'ls',
-            'context' => 'ctx',
+            'user' => 'uu',
+            'enrol' => 'ue',
+            'user_enrolments' => 'uue',
+            'user_lastaccess' => 'uul',
+            'course' => 'uc',
+            'course_modules' => 'ucm',
+            'modules' => 'um',
+            'assign' => 'ua',
+            'assign_submission' => 'uas',
+            'logstore_standard_log' => 'ulsl',
+            'context' => 'uctx',
         ];
     }
 
@@ -147,6 +147,8 @@ class userentity extends base {
                     GROUP BY contextid
                 ) AS {$logstorealiassub2} ON {$logstorealiassub2}.contextid = {$contexttablealias}.id
         ";
+
+        $columns[] = base_report::is_selectable(true, $this, $usertablealias);
 
         // Last access in 7 days column.
         $columns[] = (new column(
@@ -268,7 +270,7 @@ class userentity extends base {
                 ON {$enrolalias}.courseid = {$coursetablealias}.id
                 LEFT JOIN {context} {$contexttablealias}
                 ON {$contexttablealias}.contextlevel = " . CONTEXT_COURSE . "
-                AND {$contexttablealias}.instanceid = {$coursetablealias}.id
+                AND {$contexttablealias}.instanceid = {$coursealias}.id
                 LEFT JOIN (
                     SELECT contextid, max(timecreated) AS maxtimecreated, COUNT(*) AS last7
                     FROM {logstore_standard_log}
