@@ -85,6 +85,7 @@ class userentity extends base {
      * @return base
      */
     public function initialise(): base {
+
         $columns = $this->get_all_columns();
         foreach ($columns as $column) {
             $this->add_column($column);
@@ -146,8 +147,6 @@ class userentity extends base {
                     GROUP BY contextid
                 ) AS {$logstorealiassub2} ON {$logstorealiassub2}.contextid = {$contexttablealias}.id
         ";
-
-        $columns[] = base_report::is_selectable(true, $this, $usertablealias);
 
         // Last access in 7 days column.
         $columns[] = (new column(
@@ -247,6 +246,7 @@ class userentity extends base {
 
         $tablealias = $this->get_table_alias('user');
         $coursetablealias = $this->get_table_alias('course');
+<<<<<<< HEAD
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
         $coursealias = $this->get_table_alias('course');
         $coursemodulesalias = $this->get_table_alias('course_modules');
@@ -284,7 +284,10 @@ class userentity extends base {
                 ) AS {$logstorealiassub2} ON {$logstorealiassub2}.contextid = {$contexttablealias}.id
         ";
 
+=======
+>>>>>>> Clean up user entity
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
+        $coursealias = $this->get_table_alias('course');
         $coursemodulesalias = $this->get_table_alias('course_modules');
         $modulesalias = $this->get_table_alias('modules');
         $enrolalias = $this->get_table_alias('enrol');
@@ -363,6 +366,7 @@ class userentity extends base {
 
             $filters[] = $filter;
         }
+
 
         // End Time  filter.
         $filters[] = (new filter(
