@@ -20,7 +20,8 @@ namespace local_ace\reportbuilder\datasource;
 
 use core_reportbuilder\datasource;
 use core_reportbuilder\local\entities\course;
-use local_ace\local\entities\userentity as user;
+use core_reportbuilder\local\entities\user;
+use local_ace\local\entities\userentity;
 use local_ace\local\entities\acesamples;
 use local_ace\local\entities\userenrolment;
 use core_reportbuilder\local\helpers\database;
@@ -52,7 +53,7 @@ class users extends datasource {
         global $CFG;
 
         // Join the user entity to the cohort member entity.
-        $userentity = new user();
+        $userentity = new userentity();
         $usertablealias = $userentity->get_table_alias('user');
 
         $this->set_main_table('user', $usertablealias);
@@ -123,7 +124,7 @@ class users extends datasource {
      * @return string[]
      */
     public function get_default_columns(): array {
-        return ['userentity:fullname', 'userentity:username', 'userentity:email'];
+        return [];
     }
 
     /**
@@ -132,7 +133,7 @@ class users extends datasource {
      * @return string[]
      */
     public function get_default_filters(): array {
-        return ['userentity:fullname', 'userentity:username', 'userentity:email'];
+        return [];
     }
 
     /**
@@ -141,6 +142,6 @@ class users extends datasource {
      * @return string[]
      */
     public function get_default_conditions(): array {
-        return ['userentity:fullname', 'userentity:username', 'userentity:email'];
+        return [];
     }
 }
