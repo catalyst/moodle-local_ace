@@ -148,6 +148,8 @@ class userentity extends base {
                 ) AS {$logstorealiassub2} ON {$logstorealiassub2}.contextid = {$contexttablealias}.id
         ";
 
+        $columns[] = base_report::is_selectable(true, $this, $usertablealias);
+
         // Last access in 7 days column.
         $columns[] = (new column(
             'log7',
@@ -308,7 +310,7 @@ class userentity extends base {
                 ON {$enrolalias}.courseid = {$coursetablealias}.id
                 LEFT JOIN {context} {$contexttablealias}
                 ON {$contexttablealias}.contextlevel = " . CONTEXT_COURSE . "
-                AND {$contexttablealias}.instanceid = {$coursetablealias}.id
+                AND {$contexttablealias}.instanceid = {$coursealias}.id
                 LEFT JOIN (
                     SELECT contextid, max(timecreated) AS maxtimecreated, COUNT(*) AS last7
                     FROM {logstore_standard_log}
