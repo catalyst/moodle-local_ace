@@ -47,7 +47,7 @@ use core_reportbuilder\local\report\base as base_report;
  * @copyright  2021 University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class userentity extends user {
+class userentity extends base {
 
     /**
      * Database tables that this entity uses and their default aliases
@@ -76,15 +76,16 @@ class userentity extends user {
      * @return lang_string
      */
     protected function get_default_entity_title(): lang_string {
-        return new lang_string('entityuser', 'core_reportbuilder');
+        return new lang_string('userentitytitle', 'local_ace');
     }
 
-    /**
+     /**
      * Initialise the entity, add all user fields and all 'visible' user profile fields
      *
      * @return base
      */
     public function initialise(): base {
+
         $columns = $this->get_all_columns();
         foreach ($columns as $column) {
             $this->add_column($column);
@@ -147,8 +148,6 @@ class userentity extends user {
                 ) AS {$logstorealiassub2} ON {$logstorealiassub2}.contextid = {$contexttablealias}.id
         ";
 
-        $columns[] = base_report::is_selectable(true, $this, $usertablealias);
-
         // Last access in 7 days column.
         $columns[] = (new column(
             'log7',
@@ -185,16 +184,70 @@ class userentity extends user {
     }
 
     /**
+     * User fields
+     *
+     * @return lang_string[]
+     */
+    protected function get_user_fields(): array {
+        return [
+            'firstname' => new lang_string('firstname'),
+            'lastname' => new lang_string('lastname'),
+            'email' => new lang_string('email'),
+            'city' => new lang_string('city'),
+            'country' => new lang_string('country'),
+            'firstnamephonetic' => new lang_string('firstnamephonetic'),
+            'lastnamephonetic' => new lang_string('lastnamephonetic'),
+            'middlename' => new lang_string('middlename'),
+            'alternatename' => new lang_string('alternatename'),
+            'idnumber' => new lang_string('idnumber'),
+            'institution' => new lang_string('institution'),
+            'department' => new lang_string('department'),
+            'phone1' => new lang_string('phone1'),
+            'phone2' => new lang_string('phone2'),
+            'address' => new lang_string('address'),
+            'lastaccess' => new lang_string('lastaccess'),
+            'suspended' => new lang_string('suspended'),
+            'confirmed' => new lang_string('confirmed', 'admin'),
+            'username' => new lang_string('username'),
+            'moodlenetprofile' => new lang_string('moodlenetprofile', 'user'),
+        ];
+    }
+
+    /**
+     * Return appropriate column type for given user field
+     *
+     * @param string $userfield
+     * @return int
+     */
+    protected function get_user_field_type(string $userfield): int {
+        switch ($userfield) {
+            case 'confirmed':
+            case 'suspended':
+                $fieldtype = column::TYPE_BOOLEAN;
+                break;
+            case 'lastaccess':
+                $fieldtype = column::TYPE_TIMESTAMP;
+                break;
+            default:
+                $fieldtype = column::TYPE_TEXT;
+                break;
+        }
+
+        return $fieldtype;
+    }
+
+    /**
      * Return list of all available filters
      *
      * @return filter[]
      */
     protected function get_all_filters(): array {
         $filters = [];
+
         $tablealias = $this->get_table_alias('user');
         $coursetablealias = $this->get_table_alias('course');
-
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
+        $coursealias = $this->get_table_alias('course');
         $coursemodulesalias = $this->get_table_alias('course_modules');
         $modulesalias = $this->get_table_alias('modules');
         $enrolalias = $this->get_table_alias('enrol');
@@ -273,6 +326,7 @@ class userentity extends user {
 
             $filters[] = $filter;
         }
+
 
         // End Time  filter.
         $filters[] = (new filter(
