@@ -80,10 +80,10 @@ class userentity extends base {
     }
 
      /**
-      * Initialise the entity, add all user fields and all 'visible' user profile fields
-      *
-      * @return base
-      */
+     * Initialise the entity, add all user fields and all 'visible' user profile fields
+     *
+     * @return base
+     */
     public function initialise(): base {
 
         $columns = $this->get_all_columns();
@@ -147,8 +147,6 @@ class userentity extends base {
                     GROUP BY contextid
                 ) AS {$logstorealiassub2} ON {$logstorealiassub2}.contextid = {$contexttablealias}.id
         ";
-
-        $columns[] = base_report::is_selectable(true, $this, $usertablealias);
 
         // Last access in 7 days column.
         $columns[] = (new column(
@@ -245,9 +243,9 @@ class userentity extends base {
      */
     protected function get_all_filters(): array {
         $filters = [];
+
         $tablealias = $this->get_table_alias('user');
         $coursetablealias = $this->get_table_alias('course');
-<<<<<<< HEAD
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
         $coursealias = $this->get_table_alias('course');
         $coursemodulesalias = $this->get_table_alias('course_modules');
@@ -285,8 +283,6 @@ class userentity extends base {
                 ) AS {$logstorealiassub2} ON {$logstorealiassub2}.contextid = {$contexttablealias}.id
         ";
 
-=======
->>>>>>> Clean up user entity
         $userenrolmentsalias = $this->get_table_alias('user_enrolments');
         $coursealias = $this->get_table_alias('course');
         $coursemodulesalias = $this->get_table_alias('course_modules');
@@ -309,7 +305,7 @@ class userentity extends base {
                 ON {$enrolalias}.courseid = {$coursetablealias}.id
                 LEFT JOIN {context} {$contexttablealias}
                 ON {$contexttablealias}.contextlevel = " . CONTEXT_COURSE . "
-                AND {$contexttablealias}.instanceid = {$coursealias}.id
+                AND {$contexttablealias}.instanceid = {$coursetablealias}.id
                 LEFT JOIN (
                     SELECT contextid, max(timecreated) AS maxtimecreated, COUNT(*) AS last7
                     FROM {logstore_standard_log}
@@ -367,6 +363,7 @@ class userentity extends base {
 
             $filters[] = $filter;
         }
+
 
         // End Time  filter.
         $filters[] = (new filter(
