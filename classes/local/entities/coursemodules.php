@@ -37,6 +37,8 @@ use core_reportbuilder\local\helpers\user_profile_fields;
 use core_reportbuilder\local\entities\user;
 use html_writer;
 use lang_string;
+use local_ace\local\filters\myenrolledcourses;
+use local_ace\local\filters\pagecontextcourse;
 use stdClass;
 use moodle_url;
 
@@ -73,6 +75,8 @@ class coursemodules extends base {
                 'assign_submission' => 'aas',
                 'logstore_standard_log' => 'alsl',
                 'context' => 'actx',
+                'totalviewcount' => 'cmtvc',
+                'totalviewcountuser' => 'cmtvcu',
                ];
     }
 
@@ -117,17 +121,25 @@ class coursemodules extends base {
     protected function get_all_columns(): array {
         global $CFG, $DB, $USER, $PAGE;
         // Note this custom report source is restricted to showing activities.
-        $course = (int)optional_param('courseid', 0, PARAM_INT);
+        $course = 0;
 
         // Determine which user to use within the user specific columns - use $PAGE->context if user context or global $USER.
-        if ($PAGE->context->contextlevel == CONTEXT_USER) {
+        $userid = $USER->id;
+        if (!empty($PAGE->context) && $PAGE->context->contextlevel == CONTEXT_USER) {
             $userid = $PAGE->context->instanceid;
-        } else {
-            $userid = $USER->id;
+        } else if (!empty($PAGE) &&
+            $PAGE->state != \moodle_page::STATE_BEFORE_HEADER ) { // When building a report $PAGE doesn't really exist.
+
+            $coursecontext = $PAGE->context->get_course_context(false);
+            if (!empty($coursecontext)) {
+                $course = $coursecontext->instanceid;
+            }
         }
 
         $cmalias = $this->get_table_alias('course_modules');
         $modulesalias = $this->get_table_alias('modules');
+        $totalviewcountalias = $this->get_table_alias('totalviewcount');
+        $totalviewcountuseralias = $this->get_table_alias('totalviewcountuser');
 
         // Build helper sql for getting activity names.
 
@@ -190,6 +202,42 @@ class coursemodules extends base {
         ->set_type(column::TYPE_TIMESTAMP)
         ->add_fields("mmj.duedate")
         ->set_callback([format::class, 'userdate']);
+
+        $viewcountsql = "LEFT JOIN (SELECT COUNT(id) as viewcounttotal, contextinstanceid
+                                 FROM {logstore_standard_log}
+                                WHERE courseid = $course
+                                      AND contextlevel = ".CONTEXT_MODULE."
+                                      AND crud = 'r'
+                             GROUP BY contextinstanceid) {$totalviewcountalias}
+                             ON {$totalviewcountalias}.contextinstanceid = {$cmalias}.id";
+
+        $columns[] = (new column(
+            'viewcounttotal',
+            new lang_string('totalviews', 'local_ace'),
+            $this->get_entity_name()
+        ))
+            ->add_join($viewcountsql)
+            ->set_is_sortable(true)
+            ->set_type(column::TYPE_INTEGER)
+            ->add_fields("{$totalviewcountalias}.viewcounttotal");
+
+        $viewcountusersql = "LEFT JOIN (SELECT COUNT(id) as viewcounttotal, contextinstanceid
+                                 FROM {logstore_standard_log}
+                                WHERE courseid = $course AND userid = $userid
+                                      AND contextlevel = ".CONTEXT_MODULE."
+                                      AND crud = 'r'
+                             GROUP BY contextinstanceid) {$totalviewcountuseralias}
+                             ON {$totalviewcountuseralias}.contextinstanceid = {$cmalias}.id";
+
+        $columns[] = (new column(
+            'viewcounttotaluser',
+            new lang_string('totalviewsuser', 'local_ace'),
+            $this->get_entity_name()
+        ))
+            ->add_join($viewcountusersql)
+            ->set_is_sortable(true)
+            ->set_type(column::TYPE_INTEGER)
+            ->add_fields("{$totalviewcountuseralias}.viewcounttotal");
 
         return $columns;
     }
