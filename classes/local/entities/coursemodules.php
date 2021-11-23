@@ -46,6 +46,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->dirroot . '/local/ace/lib.php');
 
 /**
  * Course entity class implementation
@@ -119,7 +120,7 @@ class coursemodules extends base {
      * @return column[]
      */
     protected function get_all_columns(): array {
-        global $CFG, $DB, $USER, $PAGE;
+        global $USER, $PAGE;
         // Note this custom report source is restricted to showing activities.
         $course = 0;
 
@@ -141,20 +142,15 @@ class coursemodules extends base {
         $totalviewcountalias = $this->get_table_alias('totalviewcount');
         $totalviewcountuseralias = $this->get_table_alias('totalviewcountuser');
 
-        // Build helper sql for getting activity names.
+        $this->add_join("JOIN {modules} {$modulesalias} ON {$cmalias}.module = {$modulesalias}.id");
 
-        $modules = [];
-        $allmods = $DB->get_records("modules"); // TODO - cache this? find a better way?
-        foreach ($allmods as $mod) {
-            if (file_exists("$CFG->dirroot/mod/$mod->name/lib.php") && $mod->visible) {
-                $modules[$mod->id] = clean_param($mod->name, PARAM_ALPHANUMEXT);
-            }
-        }
+        // Get list of modules we want to include in this query.
+        $modules = \local_ace_get_module_types();
 
         // Create a table with the instanceid, module id and activity name to match with coursemodule table.
         $modulejoins = [];
         foreach ($modules as $mid => $mname) {
-            $duedatecolumn = 0;
+            $duedatecolumn = 0; // Where the activity doesn't have a duedate we prefill this param as empty.
             if ($mname == 'assign') {
                 $duedatecolumn = 'duedate';
             }
@@ -164,6 +160,7 @@ class coursemodules extends base {
                                WHERE course = $course";
         }
         $modulejoin = implode(' UNION ALL ', $modulejoins);
+        $this->add_join("JOIN ({$modulejoin}) mmj ON mmj.id = {$cmalias}.instance AND mmj.module = {$cmalias}.module");
 
         $columns = [];
 
@@ -173,7 +170,7 @@ class coursemodules extends base {
             new lang_string('activity'),
             $this->get_entity_name()
         ))
-            ->add_join("JOIN {modules} {$modulesalias} ON {$cmalias}.module = {$modulesalias}.id")
+            ->add_joins($this->get_joins())
             ->set_is_sortable(true)
             ->add_field("{$modulesalias}.name")
             ->add_callback(static function ($v): string {
@@ -187,7 +184,7 @@ class coursemodules extends base {
             new lang_string('name'),
             $this->get_entity_name()
         ))
-            ->add_join("JOIN ({$modulejoin}) mmj ON mmj.id = {$cmalias}.instance AND mmj.module = {$cmalias}.module")
+            ->add_joins($this->get_joins())
             ->set_is_sortable(true)
             ->add_field("mmj.name");
 
@@ -197,7 +194,7 @@ class coursemodules extends base {
             new lang_string('due', 'local_ace'),
             $this->get_entity_name()
         ))
-            ->add_join("JOIN {modules} {$modulesalias} ON {$cmalias}.module = {$modulesalias}.id")
+        ->add_joins($this->get_joins())
         ->set_is_sortable(true)
         ->set_type(column::TYPE_TIMESTAMP)
         ->add_fields("mmj.duedate")
@@ -250,7 +247,6 @@ class coursemodules extends base {
     protected function get_all_filters(): array {
 
         $filters = [];
-        $cmalias = $this->get_table_alias('course_modules');
         $modulesalias = $this->get_table_alias('modules');
 
         // Module name filter.
