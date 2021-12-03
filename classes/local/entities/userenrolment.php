@@ -26,6 +26,7 @@ use core_reportbuilder\local\report\filter;
 use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\helpers\format;
 use local_ace\local\filters\acedate;
+use local_ace\local\filters\hidecourseurl;
 use local_ace\local\filters\pagecontextcourse;
 use local_ace\local\filters\myenrolledcourses;
 
@@ -276,6 +277,15 @@ class userenrolment extends base {
             new lang_string('myenrolledcourses', 'local_ace'),
             $this->get_entity_name(),
             "{$enrolalias}.courseid"
+        ))
+            ->add_joins($this->get_joins());
+
+        $filters[] = (new filter(
+            hidecourseurl::class,
+            'hidecourseurl',
+            new lang_string('hidecourseurl', 'local_ace'),
+            $this->get_entity_name(),
+            ""
         ))
             ->add_joins($this->get_joins());
 

@@ -145,3 +145,4 @@ $string['courseregex'] = 'ACE course regex';
 $string['moduletype'] = 'Course Module Type';
 $string['courseselect'] = 'Course Selection';
 $string['activitynamedashboardlink'] = 'Activity name with dashboard link';
+$string['hidecourseurl'] = 'Hide report if course passed in url';
