@@ -84,6 +84,16 @@ function xmldb_local_ace_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021101800, 'local', 'ace');
     }
 
+    if ($oldversion < 2021121302) {
+        $DB->delete_records('local_ace_samples');
+        $DB->delete_records('local_ace_contexts');
+
+        set_config('statsrunlast', time() - (DAYSECS * 30 * 6), 'local_ace');
+
+        // The plugin ace savepoint reached.
+        upgrade_plugin_savepoint(true, 2021121302, 'local', 'ace');
+    }
+
     return true;
 }
 
