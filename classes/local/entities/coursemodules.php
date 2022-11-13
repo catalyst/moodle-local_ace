@@ -252,11 +252,11 @@ class coursemodules extends base {
             ->set_type(column::TYPE_INTEGER)
             ->add_fields("{$totalviewcountuseralias}.viewcounttotal");
 
-        $lastaccessanyjoin = "LEFT JOIN (SELECT contextinstanceid, MAX(timecreated) as lastaccessany
-                                        FROM {logstore_standard_log}
-                                       WHERE courseid = $courseid
-                                    GROUP BY contextinstanceid) {$this->logstorealias1}
-                                     ON {$this->logstorealias1}.contextinstanceid = {$cmalias}.id";
+        $lastaccessanyjoin = "LEFT JOIN (SELECT cmid, MAX(lastaccessed) as lastaccessany
+                                      FROM {local_ace_modules_views}
+	                                 WHERE courseid = $courseid
+                                  GROUP BY cmid) {$this->logstorealias1}
+                             ON {$this->logstorealias1}.cmid = {$cmalias}.id";
 
         $columns[] = (new column(
             'lastaccessanyuser',
